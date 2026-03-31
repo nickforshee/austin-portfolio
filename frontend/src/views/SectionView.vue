@@ -9,17 +9,30 @@
     </header>
 
     <main class="content-wrap section-page-wrap">
-      <section class="card section-block">
+      <section class="card section-block section-surface">
         <div class="section-heading">
-          <h2>{{ sectionLabels[section] }}</h2>
-          <span class="count">{{ items.length }} entries</span>
+          <p class="section-count-label">{{ items.length }} entries</p>
+          <RouterLink class="inline-admin-link" to="/admin">Edit in Admin</RouterLink>
         </div>
 
         <p v-if="!items.length" class="empty">No entries yet. Add content from the admin page.</p>
 
         <div v-else :class="['grid', section === 'gallery' ? 'gallery-grid' : 'standard-grid']">
-          <article v-for="item in items" :key="item.id" class="entry">
-            <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.title" loading="lazy" />
+          <article
+            v-for="item in items"
+            :key="item.id"
+            class="entry"
+            :class="{ 'entry-gallery': section === 'gallery' }"
+          >
+            <button
+              v-if="item.imageUrl && section === 'gallery'"
+              class="image-button"
+              type="button"
+              @click="openLightbox(item)"
+            >
+              <img :src="item.imageUrl" :alt="item.title" loading="lazy" />
+            </button>
+            <img v-else-if="item.imageUrl" :src="item.imageUrl" :alt="item.title" loading="lazy" />
             <div class="entry-content">
               <p v-if="item.eventDate" class="entry-date">{{ formatDate(item.eventDate) }}</p>
               <h3>{{ item.title }}</h3>
@@ -34,17 +47,37 @@
         </div>
       </section>
     </main>
+
+    <div
+      v-if="lightboxItem"
+      class="lightbox"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="lightboxItem.title"
+      @click.self="closeLightbox"
+    >
+      <button class="lightbox-close" type="button" @click="closeLightbox">Close</button>
+      <figure class="lightbox-figure">
+        <img :src="lightboxItem.imageUrl || ''" :alt="lightboxItem.title" />
+        <figcaption>
+          <h3>{{ lightboxItem.title }}</h3>
+          <p v-if="lightboxItem.subtitle">{{ lightboxItem.subtitle }}</p>
+        </figcaption>
+      </figure>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { RouterLink } from 'vue-router';
 import { getPublicItems } from '../lib/api';
 import { sectionLabels, type ContentItem, type SectionKey } from '../lib/types';
 
 const props = defineProps<{ section: SectionKey }>();
 
 const items = ref<ContentItem[]>([]);
+const lightboxItem = ref<ContentItem | null>(null);
 
 const sectionDescriptions: Record<SectionKey, string> = {
   shows: 'Direction and production work from recent school theatre seasons.',
@@ -70,6 +103,22 @@ async function loadItems() {
   }
 }
 
+function openLightbox(item: ContentItem) {
+  lightboxItem.value = item;
+}
+
+function closeLightbox() {
+  lightboxItem.value = null;
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    closeLightbox();
+  }
+}
+
 watch(() => props.section, loadItems);
 onMounted(loadItems);
+onMounted(() => window.addEventListener('keydown', onKeydown));
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 </script>
