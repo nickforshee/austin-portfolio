@@ -37,7 +37,7 @@ app.config['PORT'] = int(os.getenv('PORT', '5000'))
 
 cors_origins_raw = os.getenv(
     'CORS_ORIGINS',
-    'http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173',
+    'http://localhost:5173,http://127.0.0.1:5173,http://localhost:4173,http://127.0.0.1:4173,https://austin-portfolio-ui.vercel.app',
 )
 cors_origins = [origin.strip() for origin in cors_origins_raw.split(',') if origin.strip()]
 
