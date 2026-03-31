@@ -49,27 +49,27 @@ const sectionLinks = [
   {
     to: '/shows',
     title: 'Past Shows',
-    description: 'Production history, direction notes, and season highlights.',
+    description: 'Selected productions with artistic goals, process notes, and student impact.',
   },
   {
     to: '/accomplishments',
     title: 'Accomplishments',
-    description: 'Awards, recognitions, and measurable student outcomes.',
+    description: 'Recognition, leadership milestones, and outcomes tied to program growth.',
   },
   {
     to: '/work',
     title: 'Teaching Work',
-    description: 'Curriculum artifacts and classroom project examples.',
+    description: 'Curriculum samples, rehearsal structures, and evidence of instructional design.',
   },
   {
     to: '/blog',
     title: 'Blog',
-    description: 'Reflective writing on theatre education practice.',
+    description: 'Reflective writing on pedagogy, rehearsal culture, and student development.',
   },
   {
     to: '/gallery',
     title: 'Photo Gallery',
-    description: 'Visual highlights from productions and rehearsals.',
+    description: 'Visual documentation from performances, tech week, and rehearsal spaces.',
   },
 ];
 

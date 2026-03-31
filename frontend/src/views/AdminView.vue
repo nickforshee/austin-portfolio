@@ -134,9 +134,9 @@
 import { onMounted, reactive, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { createItem, deleteItem, getAdminItems, getProfile, login, updateItem, updateProfile } from '../lib/api';
+import { TOKEN_KEY } from '../lib/auth';
 import { sectionLabels, type ContentItem, type EditableItem, type Profile, type SectionKey } from '../lib/types';
 
-const TOKEN_KEY = 'austin-portfolio-token';
 const sections: SectionKey[] = ['shows', 'accomplishments', 'work', 'blog', 'gallery'];
 
 const token = ref(localStorage.getItem(TOKEN_KEY) || '');

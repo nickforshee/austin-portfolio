@@ -12,7 +12,7 @@
       <section class="card section-block section-surface">
         <div class="section-heading">
           <p class="section-count-label">{{ items.length }} entries</p>
-          <RouterLink class="inline-admin-link" to="/admin">Edit in Admin</RouterLink>
+          <RouterLink v-if="adminAuthenticated" class="inline-admin-link" to="/admin">Edit in Admin</RouterLink>
         </div>
 
         <p v-if="!items.length" class="empty">No entries yet. Add content from the admin page.</p>
@@ -72,19 +72,21 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { RouterLink } from 'vue-router';
 import { getPublicItems } from '../lib/api';
+import { isAdminAuthenticated } from '../lib/auth';
 import { sectionLabels, type ContentItem, type SectionKey } from '../lib/types';
 
 const props = defineProps<{ section: SectionKey }>();
 
 const items = ref<ContentItem[]>([]);
 const lightboxItem = ref<ContentItem | null>(null);
+const adminAuthenticated = ref(false);
 
 const sectionDescriptions: Record<SectionKey, string> = {
-  shows: 'Direction and production work from recent school theatre seasons.',
-  accomplishments: 'Awards, recognitions, and measurable program outcomes.',
-  work: 'Curriculum design, classroom strategies, and creative teaching artifacts.',
-  blog: 'Reflections on theatre pedagogy, rehearsal process, and student growth.',
-  gallery: 'Visual highlights from productions, rehearsals, and backstage moments.',
+  shows: 'Productions Austin has directed, taught, or staged with student ensembles.',
+  accomplishments: 'Awards, milestones, and outcomes that reflect measurable student growth.',
+  work: 'Lesson design, rehearsal frameworks, and instructional artifacts from the classroom.',
+  blog: 'Short reflections on theatre pedagogy, collaboration, and process-driven learning.',
+  gallery: 'Production photos and rehearsal moments that capture ensemble storytelling.',
 };
 
 function formatDate(value: string) {
@@ -117,8 +119,15 @@ function onKeydown(event: KeyboardEvent) {
   }
 }
 
+function syncAdminAuth() {
+  adminAuthenticated.value = isAdminAuthenticated();
+}
+
 watch(() => props.section, loadItems);
 onMounted(loadItems);
+onMounted(syncAdminAuth);
 onMounted(() => window.addEventListener('keydown', onKeydown));
+onMounted(() => window.addEventListener('storage', syncAdminAuth));
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
+onBeforeUnmount(() => window.removeEventListener('storage', syncAdminAuth));
 </script>
