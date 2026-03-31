@@ -16,28 +16,16 @@
         <p>{{ profile?.programStatement || fallbackStatement }}</p>
       </section>
 
-      <section v-for="section in sections" :key="section.key" class="card section-block">
+      <section class="card section-block">
         <div class="section-heading">
-          <h2>{{ section.label }}</h2>
-          <span class="count">{{ items[section.key].length }} entries</span>
+          <h2>Explore Portfolio Sections</h2>
         </div>
 
-        <p v-if="!items[section.key].length" class="empty">New work will appear here soon.</p>
-
-        <div v-else :class="['grid', section.key === 'gallery' ? 'gallery-grid' : 'standard-grid']">
-          <article v-for="item in items[section.key]" :key="item.id" class="entry">
-            <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.title" loading="lazy" />
-            <div class="entry-content">
-              <p v-if="item.eventDate" class="entry-date">{{ formatDate(item.eventDate) }}</p>
-              <h3>{{ item.title }}</h3>
-              <p v-if="item.subtitle" class="entry-subtitle">{{ item.subtitle }}</p>
-              <p v-if="item.summary" class="entry-summary">{{ item.summary }}</p>
-              <p v-if="section.key === 'blog' && item.body" class="entry-body">{{ item.body }}</p>
-              <a v-if="item.externalUrl" class="entry-link" :href="item.externalUrl" target="_blank" rel="noreferrer">
-                View Resource
-              </a>
-            </div>
-          </article>
+        <div class="section-nav-grid">
+          <RouterLink v-for="link in sectionLinks" :key="link.to" class="section-link-card" :to="link.to">
+            <h3>{{ link.title }}</h3>
+            <p>{{ link.description }}</p>
+          </RouterLink>
         </div>
       </section>
     </main>
@@ -45,27 +33,45 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
-import { getProfile, getPublicItems } from '../lib/api';
-import { sectionLabels, type ContentItem, type Profile, type SectionKey } from '../lib/types';
+import { computed, onMounted, ref } from 'vue';
+import { RouterLink } from 'vue-router';
+import { getProfile } from '../lib/api';
+import type { Profile } from '../lib/types';
 
 const fallbackBio =
   'Theatre teacher, director, and mentor dedicated to creating brave rehearsal rooms and meaningful student performance experiences.';
 const fallbackStatement =
   'This portfolio documents production leadership, classroom practice, and creative outcomes as part of Austin\'s graduate study application.';
 
-const sectionKeys: SectionKey[] = ['shows', 'accomplishments', 'work', 'blog', 'gallery'];
-
 const profile = ref<Profile | null>(null);
-const items = reactive<Record<SectionKey, ContentItem[]>>({
-  shows: [],
-  accomplishments: [],
-  work: [],
-  blog: [],
-  gallery: [],
-});
 
-const sections = sectionKeys.map((key) => ({ key, label: sectionLabels[key] }));
+const sectionLinks = [
+  {
+    to: '/shows',
+    title: 'Past Shows',
+    description: 'Production history, direction notes, and season highlights.',
+  },
+  {
+    to: '/accomplishments',
+    title: 'Accomplishments',
+    description: 'Awards, recognitions, and measurable student outcomes.',
+  },
+  {
+    to: '/work',
+    title: 'Teaching Work',
+    description: 'Curriculum artifacts and classroom project examples.',
+  },
+  {
+    to: '/blog',
+    title: 'Blog',
+    description: 'Reflective writing on theatre education practice.',
+  },
+  {
+    to: '/gallery',
+    title: 'Photo Gallery',
+    description: 'Visual highlights from productions and rehearsals.',
+  },
+];
 
 const heroStyle = computed(() => ({
   backgroundImage: profile.value?.heroImageUrl
@@ -73,30 +79,11 @@ const heroStyle = computed(() => ({
     : 'linear-gradient(120deg, #3a1614, #1e2f40)',
 }));
 
-function formatDate(value: string) {
-  if (!value) return '';
-  const dt = new Date(value);
-  if (Number.isNaN(dt.getTime())) return value;
-  return dt.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-}
-
-async function loadPage() {
+onMounted(async () => {
   try {
     profile.value = await getProfile();
   } catch (error) {
     console.error(error);
   }
-
-  await Promise.all(
-    sectionKeys.map(async (sectionKey) => {
-      try {
-        items[sectionKey] = await getPublicItems(sectionKey);
-      } catch (error) {
-        console.error(error);
-      }
-    }),
-  );
-}
-
-onMounted(loadPage);
+});
 </script>
