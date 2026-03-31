@@ -13,8 +13,22 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'portfolio.db')
 
+
+def resolve_database_url():
+    raw_url = os.getenv('DATABASE_URL', '').strip()
+    if not raw_url:
+        return f'sqlite:///{DB_PATH}'
+
+    # Support provider URLs like postgres://... and upgrade to psycopg driver.
+    if raw_url.startswith('postgres://'):
+        return raw_url.replace('postgres://', 'postgresql+psycopg://', 1)
+    if raw_url.startswith('postgresql://'):
+        return raw_url.replace('postgresql://', 'postgresql+psycopg://', 1)
+    return raw_url
+
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', f'sqlite:///{DB_PATH}')
+app.config['SQLALCHEMY_DATABASE_URI'] = resolve_database_url()
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'replace-this-with-a-long-secret-key-12345')
 app.config['ADMIN_USERNAME'] = os.getenv('ADMIN_USERNAME', 'austin')
