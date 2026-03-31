@@ -88,7 +88,7 @@ a {
 }
 
 .section-hero {
-  padding: 3rem 1.5rem 0.8rem;
+  padding: 3rem 1.5rem 2.25rem;
 }
 
 .hero-content.compact {
@@ -137,6 +137,10 @@ a {
   margin: -3rem auto 0;
   display: grid;
   gap: 1.1rem;
+}
+
+.section-page-wrap {
+  margin: 0 auto 0;
 }
 
 .card {
