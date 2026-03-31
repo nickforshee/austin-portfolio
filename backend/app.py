@@ -328,6 +328,13 @@ def init_db():
         seed_data()
 
 
-if __name__ == '__main__':
+def should_auto_init_db():
+    return os.getenv('AUTO_INIT_DB', 'true').strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+if should_auto_init_db():
     init_db()
+
+
+if __name__ == '__main__':
     app.run(host='0.0.0.0', port=app.config['PORT'], debug=True)
